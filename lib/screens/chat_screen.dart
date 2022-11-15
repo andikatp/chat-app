@@ -1,6 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chat_app/widgets/chat/new_message_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import '../widgets/chat/messages_chat.dart';
 
 class ChatScreen extends StatelessWidget {
   static const String routeName = '/Chat-Screen';
@@ -34,35 +36,15 @@ class ChatScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('chats/q3wNsSY4RHZpVwcO4bue/messages')
-            .snapshots(),
-        builder: (ctx, snapshot) {
-          final document = snapshot.data?.docs;
-          return ListView.builder(
-            itemBuilder: (ctx, index) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              return Container(
-                padding: const EdgeInsets.all(8),
-                child: Text(document?[index]['text']),
-              );
-            },
-            itemCount: document?.length,
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            FirebaseFirestore.instance
-                .collection('chats/q3wNsSY4RHZpVwcO4bue/messages')
-                .add({'text': 'This is from button!'});
-          },
-          child: const Icon(Icons.add)),
+      body: Container(
+          child: Column(
+        children: const [
+          Expanded(
+            child: MessagesChat(),
+          ),
+          NewMessageWidget(),
+        ],
+      )),
     );
   }
 }
