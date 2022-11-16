@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:chat_app/widgets/pickers/user_image_picker.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 
@@ -21,19 +24,34 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
   String _userEmail = '';
   String _userPassword = '';
   bool _isLogin = false;
+  File? _image;
 
   void _trySubmit() {
     FocusScope.of(context).unfocus();
     final isValid = _formKey.currentState!.validate();
+    if (_image == null && !_isLogin) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please Pick an Image'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
     if (isValid) {
       _formKey.currentState!.save();
       widget.submitFn(
         _userEmail,
         _userPassword,
         _userName,
+        _image,
         _isLogin,
       );
     }
+  }
+
+  void _imageFun(File image) {
+    _image = image;
   }
 
   @override
@@ -51,6 +69,7 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (!_isLogin) UserImagePicker(pickedImageFn: _imageFun),
                   TextFormField(
                     key: const ValueKey('email'),
                     decoration:

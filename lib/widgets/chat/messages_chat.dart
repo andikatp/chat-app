@@ -25,6 +25,7 @@ class MessagesChat extends StatelessWidget {
           itemCount: doc?.length,
           itemBuilder: (context, index) {
             return MessageBubble(
+                userImage: doc?[index]['userImage'],
                 message: doc?[index]['text'],
                 isMe: snapshot.data?.docs[index]['userId'] ==
                         FirebaseAuth.instance.currentUser?.uid

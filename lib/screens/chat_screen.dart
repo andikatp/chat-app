@@ -36,15 +36,14 @@ class ChatScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Container(
-          child: Column(
+      body: Column(
         children: const [
           Expanded(
             child: MessagesChat(),
           ),
           NewMessageWidget(),
         ],
-      )),
+      ),
     );
   }
 }

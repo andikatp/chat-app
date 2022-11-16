@@ -15,13 +15,17 @@ class _NewMessageWidgetState extends State<NewMessageWidget> {
 
   void _sendMessage() async {
     FocusScope.of(context).unfocus();
-    final User? user =  FirebaseAuth.instance.currentUser;
-    final userData = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+    final User? user = FirebaseAuth.instance.currentUser;
+    final userData = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get();
     FirebaseFirestore.instance.collection('chat').add({
       'text': _enteredMessage,
       'createdAt': Timestamp.now(),
       'userId': user.uid,
       'username': userData['username'],
+      'userImage': userData['image_url'],
     });
     _controller.clear();
   }
@@ -46,6 +50,8 @@ class _NewMessageWidgetState extends State<NewMessageWidget> {
                 labelText: 'Send Message...',
               ),
               textInputAction: TextInputAction.done,
+              onEditingComplete:
+                  _enteredMessage.trim().isEmpty ? null : _sendMessage,
               onChanged: (value) {
                 setState(() {
                   _enteredMessage = value;

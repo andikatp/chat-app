@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:chat_app/widgets/auth/auth_form_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -18,6 +20,7 @@ class _AuthScreenState extends State<AuthScreen> {
     String email,
     String password,
     String username,
+    File image,
     bool isLogin,
   ) async {
     UserCredential userCred;
@@ -35,14 +38,25 @@ class _AuthScreenState extends State<AuthScreen> {
           email: email,
           password: password,
         );
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child('user_images')
+            .child('${userCred.user!.uid}.jpg');
+
+        await ref.putFile(image).whenComplete(() => Future.value(0));
+        final url = await ref.getDownloadURL();
+
         FirebaseFirestore.instance
             .collection('users')
             .doc(userCred.user?.uid)
-            .set({'username': username, 'email': email});
+            .set({
+          'username': username,
+          'email': email,
+          'image_url': url,
+        });
       }
-      
     } on FirebaseAuthException catch (error) {
-      String messages = 'An Errpr occured, please check your credentials!';
+      String messages = 'An Error occured, please check your credentials!';
       if (error.message != null) {
         messages = error.message!;
       }
@@ -58,7 +72,6 @@ class _AuthScreenState extends State<AuthScreen> {
         _isLoading = false;
       });
       rethrow;
-      
     }
   }
 
@@ -66,7 +79,10 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      body: AuthFormWidget(submitFn: _submitAuthForm,  isLoading: _isLoading,),
+      body: AuthFormWidget(
+        submitFn: _submitAuthForm,
+        isLoading: _isLoading,
+      ),
     );
   }
 }
